@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bot Detector - Advanced Example</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 20px;
+      background: #1a1a2e;
+      color: #eee;
+    }
+    
+    h1 {
+      color: #00d4ff;
+    }
+    
+    h2 {
+      color: #00d4ff;
+      border-bottom: 1px solid #333;
+      padding-bottom: 10px;
+    }
+    
+    .card {
+      background: #16213e;
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 20px;
+      border: 1px solid #0f3460;
+    }
+    
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    
+    @media (max-width: 768px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+    }
+    
+    .verdict {
+      font-size: 2.5em;
+      font-weight: bold;
+      padding: 15px 30px;
+      border-radius: 8px;
+      display: inline-block;
+      margin: 10px 0;
+      text-transform: uppercase;
+    }
+    
+    .verdict.human {
+      background: linear-gradient(135deg, #00c853, #69f0ae);
+      color: #1a1a2e;
+    }
+    
+    .verdict.suspicious {
+      background: linear-gradient(135deg, #ff6d00, #ffab40);
+      color: #1a1a2e;
+    }
+    
+    .verdict.bot {
+      background: linear-gradient(135deg, #d50000, #ff5252);
+      color: white;
+    }
+    
+    .score-bar {
+      height: 30px;
+      background: #0f3460;
+      border-radius: 15px;
+      overflow: hidden;
+      margin: 10px 0;
+    }
+    
+    .score-fill {
+      height: 100%;
+      transition: width 0.5s ease-out;
+      border-radius: 15px;
+    }
+    
+    .score-fill.low {
+      background: linear-gradient(90deg, #00c853, #69f0ae);
+    }
+    
+    .score-fill.medium {
+      background: linear-gradient(90deg, #ff6d00, #ffab40);
+    }
+    
+    .score-fill.high {
+      background: linear-gradient(90deg, #d50000, #ff5252);
+    }
+    
+    .category {
+      margin-bottom: 20px;
+    }
+    
+    .category-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      padding: 10px;
+      background: #0f3460;
+      border-radius: 4px;
+    }
+    
+    .category-name {
+      font-weight: bold;
+      text-transform: capitalize;
+    }
+    
+    .category-count {
+      background: #00d4ff;
+      color: #1a1a2e;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: 0.9em;
+    }
+    
+    .signal {
+      padding: 10px;
+      margin: 5px 0;
+      border-radius: 4px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.9em;
+    }
+    
+    .signal.triggered {
+      background: rgba(255, 82, 82, 0.2);
+      border-left: 3px solid #ff5252;
+    }
+    
+    .signal.clear {
+      background: rgba(105, 240, 174, 0.1);
+      border-left: 3px solid #69f0ae;
+    }
+    
+    button {
+      background: linear-gradient(135deg, #00d4ff, #00a8cc);
+      color: #1a1a2e;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 4px;
+      font-size: 1em;
+      font-weight: bold;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 212, 255, 0.4);
+    }
+    
+    button:disabled {
+      background: #444;
+      color: #888;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+    
+    .config-group {
+      margin: 15px 0;
+    }
+    
+    .config-group label {
+      display: block;
+      margin-bottom: 5px;
+      color: #aaa;
+    }
+    
+    .config-group input[type="number"],
+    .config-group input[type="text"] {
+      width: 100%;
+      padding: 10px;
+      background: #0f3460;
+      border: 1px solid #333;
+      border-radius: 4px;
+      color: #eee;
+      font-size: 1em;
+    }
+    
+    .config-group input:focus {
+      outline: none;
+      border-color: #00d4ff;
+    }
+    
+    .checkbox-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .checkbox-group input[type="checkbox"] {
+      width: 20px;
+      height: 20px;
+    }
+    
+    pre {
+      background: #0a0a14;
+      color: #69f0ae;
+      padding: 15px;
+      border-radius: 4px;
+      overflow-x: auto;
+      font-size: 0.85em;
+      border: 1px solid #333;
+    }
+    
+    .json-key {
+      color: #ff5252;
+    }
+    
+    .json-string {
+      color: #69f0ae;
+    }
+    
+    .json-number {
+      color: #00d4ff;
+    }
+    
+    .interaction-area {
+      padding: 30px;
+      background: #0f3460;
+      border-radius: 8px;
+      text-align: center;
+      margin: 10px 0;
+    }
+    
+    .interaction-area input {
+      width: 100%;
+      padding: 15px;
+      background: #16213e;
+      border: 1px solid #333;
+      border-radius: 4px;
+      color: #eee;
+      font-size: 1em;
+    }
+    
+    .interaction-area input:focus {
+      outline: none;
+      border-color: #00d4ff;
+    }
+    
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin: 20px 0;
+    }
+    
+    .stat {
+      background: #0f3460;
+      padding: 15px;
+      border-radius: 4px;
+      text-align: center;
+    }
+    
+    .stat-value {
+      font-size: 1.8em;
+      font-weight: bold;
+      color: #00d4ff;
+    }
+    
+    .stat-label {
+      font-size: 0.8em;
+      color: #888;
+      margin-top: 5px;
+    }
+    
+    .live-indicator {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      background: #69f0ae;
+      border-radius: 50%;
+      margin-right: 8px;
+      animation: pulse 1s infinite;
+    }
+    
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+  </style>
+</head>
+<body>
+  <h1>🤖 Bot Detector - Advanced Example</h1>
+  
+  <div class="grid">
+    <div class="card">
+      <h2>Configuration</h2>
+      
+      <div class="config-group">
+        <label>Human Threshold (0-100)</label>
+        <input type="number" id="humanThreshold" value="20" min="0" max="100">
+      </div>
+      
+      <div class="config-group">
+        <label>Suspicious Threshold (0-100)</label>
+        <input type="number" id="suspiciousThreshold" value="50" min="0" max="100">
+      </div>
+      
+      <div class="config-group">
+        <label>Detection Timeout (ms)</label>
+        <input type="number" id="timeout" value="5000" min="1000" max="30000">
+      </div>
+      
+      <div class="config-group">
+        <label class="checkbox-group">
+          <input type="checkbox" id="includeInteraction" checked>
+          Include Interaction Signals
+        </label>
+      </div>
+      
+      <div class="config-group">
+        <label class="checkbox-group">
+          <input type="checkbox" id="autoDetect">
+          Auto-detect on page load
+        </label>
+      </div>
+      
+      <button onclick="runDetection()" id="detect-btn">
+        🔍 Run Detection
+      </button>
+    </div>
+    
+    <div class="card">
+      <h2>Interaction Test Area</h2>
+      <p style="color: #888; font-size: 0.9em;">
+        Move your mouse, type, and scroll to generate behavioral data for more accurate detection.
+      </p>
+      
+      <div class="interaction-area">
+        <input type="text" placeholder="Type something here to test keyboard patterns...">
+      </div>
+      
+      <div id="interaction-stats" style="margin-top: 10px; color: #888; font-size: 0.9em;">
+        <span class="live-indicator"></span>
+        <span id="mouse-count">Mouse events: 0</span> | 
+        <span id="key-count">Key events: 0</span> | 
+        <span id="scroll-count">Scroll events: 0</span>
+      </div>
+    </div>
+  </div>
+  
+  <div class="card" id="result-card" style="display: none;">
+    <h2>Detection Result</h2>
+    
+    <div style="text-align: center;">
+      <div class="verdict" id="verdict"></div>
+    </div>
+    
+    <div class="score-bar">
+      <div class="score-fill" id="score-fill" style="width: 0%"></div>
+    </div>
+    
+    <div class="stats">
+      <div class="stat">
+        <div class="stat-value" id="score">0</div>
+        <div class="stat-label">Bot Score</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value" id="triggered-count">0</div>
+        <div class="stat-label">Signals Triggered</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value" id="total-signals">0</div>
+        <div class="stat-label">Total Signals</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value" id="detection-time">0</div>
+        <div class="stat-label">Detection (ms)</div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="grid" id="signals-grid" style="display: none;">
+    <div class="card">
+      <h2>Signals by Category</h2>
+      <div id="signals-by-category"></div>
+    </div>
+    
+    <div class="card">
+      <h2>Raw Result (JSON)</h2>
+      <pre id="raw-json"></pre>
+    </div>
+  </div>
+  
+  <div class="card">
+    <h2>Custom Signal Example</h2>
+    <pre><code>import { BotDetector, Signal } from '@niksbanna/bot-detector';
+
+// Create a custom signal
+class CustomBotSignal extends Signal {
+  static id = 'custom-bot-check';
+  static category = 'custom';
+  static weight = 0.8;
+  static description = 'Custom bot detection logic';
+  
+  async detect() {
+    // Your custom detection logic
+    const suspicious = window.myBotFlag === true;
+    return this.createResult(suspicious, { checked: true }, 0.9);
+  }
+}
+
+// Use with detector
+const detector = new BotDetector();
+detector.registerSignal(new CustomBotSignal());
+const result = await detector.detect();</code></pre>
+  </div>
+
+  <script type="module">
+    import { BotDetector, createDetector, Signals } from '../dist/bot-detector.esm.js';
+    
+    // Track interaction events
+    let mouseEvents = 0;
+    let keyEvents = 0;
+    let scrollEvents = 0;
+    
+    document.addEventListener('mousemove', () => {
+      mouseEvents++;
+      document.getElementById('mouse-count').textContent = `Mouse events: ${mouseEvents}`;
+    });
+    
+    document.addEventListener('keydown', () => {
+      keyEvents++;
+      document.getElementById('key-count').textContent = `Key events: ${keyEvents}`;
+    });
+    
+    window.addEventListener('scroll', () => {
+      scrollEvents++;
+      document.getElementById('scroll-count').textContent = `Scroll events: ${scrollEvents}`;
+    });
+    
+    window.runDetection = async function() {
+      const btn = document.getElementById('detect-btn');
+      btn.disabled = true;
+      btn.textContent = 'Detecting...';
+      
+      try {
+        const config = {
+          humanThreshold: parseInt(document.getElementById('humanThreshold').value),
+          suspiciousThreshold: parseInt(document.getElementById('suspiciousThreshold').value),
+          detectionTimeout: parseInt(document.getElementById('timeout').value),
+          includeInteractionSignals: document.getElementById('includeInteraction').checked,
+        };
+        
+        const detector = createDetector(config);
+        const result = await detector.detect();
+        displayResult(result);
+      } catch (error) {
+        console.error('Detection failed:', error);
+        alert('Detection failed: ' + error.message);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = '🔍 Run Detection';
+      }
+    };
+    
+    function displayResult(result) {
+      // Show cards
+      document.getElementById('result-card').style.display = 'block';
+      document.getElementById('signals-grid').style.display = 'grid';
+      
+      // Verdict
+      const verdictEl = document.getElementById('verdict');
+      verdictEl.textContent = result.verdict;
+      verdictEl.className = 'verdict ' + result.verdict;
+      
+      // Score bar
+      const scoreFill = document.getElementById('score-fill');
+      scoreFill.style.width = `${result.score}%`;
+      scoreFill.className = 'score-fill ' + 
+        (result.score < 20 ? 'low' : result.score < 50 ? 'medium' : 'high');
+      
+      // Stats
+      document.getElementById('score').textContent = result.score.toFixed(1);
+      document.getElementById('triggered-count').textContent = result.triggeredSignals.length;
+      document.getElementById('total-signals').textContent = result.totalSignals;
+      document.getElementById('detection-time').textContent = result.detectionTimeMs;
+      
+      // Signals by category
+      const categories = {};
+      for (const [id, signal] of Object.entries(result.signals)) {
+        const cat = signal.category || 'unknown';
+        if (!categories[cat]) {
+          categories[cat] = [];
+        }
+        categories[cat].push({ id, ...signal });
+      }
+      
+      const categoriesEl = document.getElementById('signals-by-category');
+      categoriesEl.innerHTML = '';
+      
+      for (const [category, signals] of Object.entries(categories)) {
+        const triggeredCount = signals.filter(s => s.triggered).length;
+        
+        const catDiv = document.createElement('div');
+        catDiv.className = 'category';
+        catDiv.innerHTML = `
+          <div class="category-header">
+            <span class="category-name">${category}</span>
+            <span class="category-count">${triggeredCount}/${signals.length} triggered</span>
+          </div>
+        `;
+        
+        for (const signal of signals) {
+          const signalDiv = document.createElement('div');
+          signalDiv.className = 'signal ' + (signal.triggered ? 'triggered' : 'clear');
+          signalDiv.innerHTML = `
+            <span>${signal.id}</span>
+            <span>${signal.triggered ? `⚠️ ${(signal.confidence * 100).toFixed(0)}%` : '✓'}</span>
+          `;
+          catDiv.appendChild(signalDiv);
+        }
+        
+        categoriesEl.appendChild(catDiv);
+      }
+      
+      // Raw JSON
+      const jsonEl = document.getElementById('raw-json');
+      jsonEl.textContent = JSON.stringify(result, null, 2);
+    }
+    
+    // Auto-detect on load if enabled
+    if (document.getElementById('autoDetect')?.checked) {
+      window.runDetection();
+    }
+  </script>
+</body>
+</html>

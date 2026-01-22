@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bot Detector - Basic Example</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    
+    h1 {
+      color: #333;
+    }
+    
+    .card {
+      background: white;
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .verdict {
+      font-size: 2em;
+      font-weight: bold;
+      padding: 10px 20px;
+      border-radius: 4px;
+      display: inline-block;
+      margin: 10px 0;
+    }
+    
+    .verdict.human {
+      background: #4caf50;
+      color: white;
+    }
+    
+    .verdict.suspicious {
+      background: #ff9800;
+      color: white;
+    }
+    
+    .verdict.bot {
+      background: #f44336;
+      color: white;
+    }
+    
+    .score {
+      font-size: 1.5em;
+      color: #666;
+    }
+    
+    .signals {
+      margin-top: 20px;
+    }
+    
+    .signal {
+      padding: 8px 12px;
+      margin: 4px 0;
+      border-radius: 4px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .signal.triggered {
+      background: #ffebee;
+      border-left: 3px solid #f44336;
+    }
+    
+    .signal.clear {
+      background: #e8f5e9;
+      border-left: 3px solid #4caf50;
+    }
+    
+    .signal-id {
+      font-weight: bold;
+      font-family: monospace;
+    }
+    
+    .signal-category {
+      font-size: 0.8em;
+      color: #888;
+      margin-left: 8px;
+    }
+    
+    .confidence {
+      font-size: 0.9em;
+      color: #666;
+    }
+    
+    button {
+      background: #2196f3;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 4px;
+      font-size: 1em;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    
+    button:hover {
+      background: #1976d2;
+    }
+    
+    button:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+    
+    .loading {
+      display: none;
+      color: #666;
+      margin-left: 10px;
+    }
+    
+    .meta {
+      color: #888;
+      font-size: 0.9em;
+      margin-top: 10px;
+    }
+    
+    pre {
+      background: #263238;
+      color: #aed581;
+      padding: 15px;
+      border-radius: 4px;
+      overflow-x: auto;
+      font-size: 0.9em;
+    }
+  </style>
+</head>
+<body>
+  <h1>🤖 Bot Detector - Basic Example</h1>
+  
+  <div class="card">
+    <h2>Detection</h2>
+    <button id="detect-btn" onclick="runDetection()">Run Detection</button>
+    <button id="detect-instant-btn" onclick="runInstantDetection()">Instant Detection (No Interaction)</button>
+    <span class="loading" id="loading">Detecting...</span>
+    
+    <div id="result" style="display: none; margin-top: 20px;">
+      <div class="verdict" id="verdict"></div>
+      <div class="score">Score: <span id="score"></span>/100</div>
+      <div class="confidence">Confidence: <span id="confidence"></span></div>
+      <div class="meta">
+        Detection time: <span id="time"></span>ms | 
+        Signals evaluated: <span id="total-signals"></span> |
+        Signals triggered: <span id="triggered-count"></span>
+      </div>
+    </div>
+  </div>
+  
+  <div class="card" id="signals-card" style="display: none;">
+    <h2>Signal Details</h2>
+    <div class="signals" id="signals"></div>
+  </div>
+  
+  <div class="card">
+    <h2>Usage</h2>
+    <pre><code>// Import the library
+import { createDetector, detect, detectInstant } from '@niksbanna/bot-detector';
+
+// Quick detection
+const result = await detect();
+console.log(result.verdict); // 'human', 'suspicious', or 'bot'
+
+// Instant detection (no interaction signals)
+const instant = await detectInstant();
+
+// Custom detector
+const detector = createDetector({
+  humanThreshold: 15,
+  suspiciousThreshold: 40,
+});
+const result = await detector.detect();</code></pre>
+  </div>
+
+  <script type="module">
+    import { createDetector, detectInstant } from '../dist/bot-detector.esm.js';
+    
+    // Make functions available globally
+    window.runDetection = async function() {
+      const btn = document.getElementById('detect-btn');
+      const loading = document.getElementById('loading');
+      
+      btn.disabled = true;
+      loading.style.display = 'inline';
+      
+      try {
+        const detector = createDetector();
+        const result = await detector.detect();
+        displayResult(result);
+      } catch (error) {
+        console.error('Detection failed:', error);
+        alert('Detection failed: ' + error.message);
+      } finally {
+        btn.disabled = false;
+        loading.style.display = 'none';
+      }
+    };
+    
+    window.runInstantDetection = async function() {
+      const btn = document.getElementById('detect-instant-btn');
+      const loading = document.getElementById('loading');
+      
+      btn.disabled = true;
+      loading.style.display = 'inline';
+      
+      try {
+        const result = await detectInstant();
+        displayResult(result);
+      } catch (error) {
+        console.error('Detection failed:', error);
+        alert('Detection failed: ' + error.message);
+      } finally {
+        btn.disabled = false;
+        loading.style.display = 'none';
+      }
+    };
+    
+    function displayResult(result) {
+      // Show result card
+      document.getElementById('result').style.display = 'block';
+      document.getElementById('signals-card').style.display = 'block';
+      
+      // Update verdict
+      const verdictEl = document.getElementById('verdict');
+      verdictEl.textContent = result.verdict.toUpperCase();
+      verdictEl.className = 'verdict ' + result.verdict;
+      
+      // Update score
+      document.getElementById('score').textContent = result.score.toFixed(1);
+      document.getElementById('confidence').textContent = result.confidence;
+      document.getElementById('time').textContent = result.detectionTimeMs;
+      document.getElementById('total-signals').textContent = result.totalSignals;
+      document.getElementById('triggered-count').textContent = result.triggeredSignals.length;
+      
+      // Display signals
+      const signalsEl = document.getElementById('signals');
+      signalsEl.innerHTML = '';
+      
+      // Sort signals: triggered first, then by category
+      const signalEntries = Object.entries(result.signals).sort((a, b) => {
+        if (a[1].triggered !== b[1].triggered) {
+          return b[1].triggered - a[1].triggered;
+        }
+        return a[1].category.localeCompare(b[1].category);
+      });
+      
+      for (const [id, signal] of signalEntries) {
+        const div = document.createElement('div');
+        div.className = 'signal ' + (signal.triggered ? 'triggered' : 'clear');
+        
+        div.innerHTML = `
+          <span>
+            <span class="signal-id">${id}</span>
+            <span class="signal-category">${signal.category}</span>
+          </span>
+          <span class="confidence">
+            ${signal.triggered ? '⚠️ Triggered' : '✓ Clear'}
+            ${signal.triggered ? `(${(signal.confidence * 100).toFixed(0)}% confidence)` : ''}
+          </span>
+        `;
+        
+        signalsEl.appendChild(div);
+      }
+    }
+    
+    // Run instant detection on page load for demo
+    // Uncomment to auto-detect:
+    // runInstantDetection();
+  </script>
+</body>
+</html>

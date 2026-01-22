@@ -1,0 +1,57 @@
+{
+  "name": "@niksbanna/bot-detector",
+  "version": "1.0.0",
+  "description": "Production-grade client-side bot detection system using signal-based scoring",
+  "main": "dist/bot-detector.cjs.js",
+  "module": "dist/bot-detector.esm.js",
+  "browser": "dist/bot-detector.iife.js",
+  "types": "dist/types.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/types.d.ts",
+      "browser": "./dist/bot-detector.iife.js",
+      "import": "./dist/bot-detector.esm.js",
+      "require": "./dist/bot-detector.cjs.js",
+      "default": "./dist/bot-detector.esm.js"
+    }
+  },
+  "files": [
+    "dist",
+    "src",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "node esbuild.config.js",
+    "dev": "node esbuild.config.js --watch",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "lint": "eslint src/",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "bot-detection",
+    "anti-bot",
+    "fingerprinting",
+    "browser-detection",
+    "automation-detection",
+    "security",
+    "fraud-prevention"
+  ],
+  "author": "niksbanna",
+  "license": "MIT",
+  "devDependencies": {
+    "esbuild": "^0.25.0",
+    "vitest": "^3.0.0",
+    "@vitest/coverage-v8": "^3.0.0",
+    "happy-dom": "^20.3.0",
+    "eslint": "^9.18.0"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": ""
+  }
+}
