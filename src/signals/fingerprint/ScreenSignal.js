@@ -116,7 +116,6 @@ class ScreenSignal extends Signal {
     // Check for screen orientation API anomalies
     if (screen.orientation) {
       const orientationType = screen.orientation.type;
-      const orientationAngle = screen.orientation.angle;
       
       // Landscape device with portrait dimensions
       if (orientationType.includes('landscape') && width < height) {

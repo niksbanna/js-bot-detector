@@ -94,7 +94,7 @@ class CanvasSignal extends Signal {
           anomalies.push('toDataURL-overridden');
           confidence = Math.max(confidence, 0.8);
         }
-      } catch (e) {
+      } catch (_e) {
         // Some environments may throw
       }
 
@@ -119,7 +119,7 @@ class CanvasSignal extends Signal {
         confidence = Math.max(confidence, 0.6);
       }
 
-    } catch (e) {
+    } catch (_e) {
       anomalies.push('canvas-error');
       confidence = Math.max(confidence, 0.4);
     }

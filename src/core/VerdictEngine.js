@@ -46,12 +46,12 @@ class VerdictEngine {
    * @returns {VerdictResult}
    */
   getVerdict(score, triggeredSignals = []) {
-    // Check for instant bot signals first
+    // Check for instant bot signals first.
     for (const signalId of triggeredSignals) {
       if (this.instantBotSignals.has(signalId)) {
         return {
           verdict: Verdict.BOT,
-          score,
+          score: 100,
           confidence: 'high',
           reason: `Instant bot signal triggered: ${signalId}`,
           triggeredCount: triggeredSignals.length,

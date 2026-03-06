@@ -61,7 +61,7 @@ class PuppeteerSignal extends Signal {
         indicators.push('eval-puppeteer');
         confidence = Math.max(confidence, 0.9);
       }
-    } catch (e) {
+    } catch (_e) {
       // Ignore errors
     }
 

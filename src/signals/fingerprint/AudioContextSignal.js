@@ -81,7 +81,7 @@ class AudioContextSignal extends Signal {
           anomalies.push('audio-context-overridden');
           confidence = Math.max(confidence, 0.7);
         }
-      } catch (e) {
+      } catch (_e) {
         // Some environments may throw
       }
 
@@ -120,7 +120,7 @@ class AudioContextSignal extends Signal {
             scriptProcessor.disconnect();
           }
         }
-      } catch (e) {
+      } catch (_e) {
         // Audio fingerprinting blocked or failed
         anomalies.push('audio-fingerprint-blocked');
         confidence = Math.max(confidence, 0.4);
@@ -133,19 +133,19 @@ class AudioContextSignal extends Signal {
         confidence = Math.max(confidence, 0.3);
       }
 
-    } catch (e) {
+    } catch (_e) {
       anomalies.push('audio-context-error');
       confidence = Math.max(confidence, 0.4);
     } finally {
       // Clean up
       if (oscillator) {
-        try { oscillator.disconnect(); } catch (e) {}
+        try { oscillator.disconnect(); } catch { /* cleanup */ }
       }
       if (analyser) {
-        try { analyser.disconnect(); } catch (e) {}
+        try { analyser.disconnect(); } catch { /* cleanup */ }
       }
       if (audioContext) {
-        try { audioContext.close(); } catch (e) {}
+        try { audioContext.close(); } catch { /* cleanup */ }
       }
     }
 

@@ -82,7 +82,7 @@ class PhantomJSSignal extends Signal {
         indicators.push('function-prototype-phantom');
         confidence = Math.max(confidence, 0.8);
       }
-    } catch (e) {
+    } catch (_e) {
       // Ignore errors
     }
 

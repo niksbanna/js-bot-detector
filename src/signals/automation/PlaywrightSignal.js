@@ -68,7 +68,7 @@ class PlaywrightSignal extends Signal {
         indicators.push('pw-bindings');
         confidence = Math.max(confidence, 1.0);
       }
-    } catch (e) {
+    } catch (_e) {
       // Ignore errors
     }
 
@@ -109,14 +109,12 @@ class PlaywrightSignal extends Signal {
 
     // Check for Playwright's locale/timezone mocking
     try {
-      const date = new Date();
-      const localeString = date.toLocaleString();
       // Playwright often mocks timezone
       if (window.__pwTimezone__) {
         indicators.push('timezone-mock');
         confidence = Math.max(confidence, 0.8);
       }
-    } catch (e) {
+    } catch (_e) {
       // Ignore errors
     }
 

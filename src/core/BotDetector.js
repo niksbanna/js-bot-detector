@@ -4,7 +4,7 @@
 
 import { Signal } from './Signal.js';
 import { ScoringEngine } from './ScoringEngine.js';
-import { VerdictEngine, Verdict } from './VerdictEngine.js';
+import { VerdictEngine } from './VerdictEngine.js';
 
 /**
  * Main bot detection orchestrator.
@@ -281,4 +281,4 @@ class BotDetector {
  * @property {Array<string>} triggeredSignals - IDs of triggered signals
  */
 
-export { BotDetector, Verdict };
+export { BotDetector };

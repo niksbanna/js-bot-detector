@@ -97,7 +97,7 @@ class SeleniumSignal extends Signal {
         indicators.push('document-webdriver-attr');
         confidence = Math.max(confidence, 1.0);
       }
-    } catch (e) {
+    } catch (_e) {
       // Ignore errors
     }
 
@@ -120,7 +120,7 @@ class SeleniumSignal extends Signal {
           }
         }
       }
-    } catch (e) {
+    } catch (_e) {
       // Ignore errors
     }
 

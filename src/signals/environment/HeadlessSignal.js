@@ -67,7 +67,7 @@ class HeadlessSignal extends Signal {
         indicators.push('notification-headless-pattern');
         confidence = Math.max(confidence, 0.5);
       }
-    } catch (e) {
+    } catch (_e) {
       // Ignore errors
     }
 

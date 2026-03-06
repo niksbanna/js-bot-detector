@@ -1,6 +1,9 @@
-const esbuild = require('esbuild');
-const path = require('path');
+import esbuild from 'esbuild';
+import path from 'path';
+import { statSync } from 'fs';
+import { fileURLToPath } from 'url';
 
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const isWatch = process.argv.includes('--watch');
 
 const commonConfig = {
@@ -57,10 +60,9 @@ async function build() {
       console.log('Build complete!');
       
       // Log bundle sizes
-      const fs = require('fs');
       console.log('\nBundle sizes:');
       builds.forEach(config => {
-        const stats = fs.statSync(config.outfile);
+        const stats = statSync(config.outfile);
         const size = (stats.size / 1024).toFixed(2);
         console.log(`  ${path.basename(config.outfile)}: ${size} KB`);
       });

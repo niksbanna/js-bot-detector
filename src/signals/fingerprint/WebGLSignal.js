@@ -24,7 +24,7 @@ class WebGLSignal extends Signal {
 
     try {
       gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
-    } catch (e) {
+    } catch (_e) {
       anomalies.push('webgl-error');
       confidence = Math.max(confidence, 0.5);
     }
@@ -98,7 +98,6 @@ class WebGLSignal extends Signal {
 
     // Check for WebGL parameter consistency
     const maxTextureSize = gl.getParameter(gl.MAX_TEXTURE_SIZE);
-    const maxViewportDims = gl.getParameter(gl.MAX_VIEWPORT_DIMS);
 
     // Unrealistic values
     if (maxTextureSize < 1024 || maxTextureSize > 65536) {
@@ -120,7 +119,7 @@ class WebGLSignal extends Signal {
         anomalies.push('webgl-render-failure');
         confidence = Math.max(confidence, 0.6);
       }
-    } catch (e) {
+    } catch (_e) {
       anomalies.push('webgl-render-error');
       confidence = Math.max(confidence, 0.5);
     }

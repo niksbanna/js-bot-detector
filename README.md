@@ -260,11 +260,21 @@ npm run build
 # Run tests
 npm test
 
+# Lint source
+npm run lint
+
 # Watch mode
 npm run dev
 ```
 
 ## Changelog
+
+### v1.0.3
+- **Fix:** Score/verdict consistency — when an instant-bot signal (e.g. `webdriver`, `puppeteer`) fires and forces `verdict: 'bot'`, the returned `score` is now always `100`. Previously the raw weighted score (which could be low, e.g. `7.61`) was kept in the result, making the score and verdict contradict each other.
+- **Fix:** `Verdict` enum is now exported exclusively from `VerdictEngine.js` (single source of truth). It is no longer re-exported through `BotDetector.js`.
+- **Tooling:** Added ESLint v9 flat config (`eslint.config.js`). `npm run lint` now works.
+- **Tooling:** Added `"type": "module"` to `package.json` — required for the ESLint flat config to load correctly as an ES module.
+- **Code quality:** Removed 6 dead local variable assignments across signal files (`hasTouchPoints`, `localeString`, `orientationAngle`, `maxViewportDims`, `typeSequence`, `totalResourceTime`). Renamed all silent `catch (e)` bindings to `catch (_e)` following the underscore-prefix convention.
 
 ### v1.0.2
 - **Fix:** `PuppeteerSignal` no longer false-positives on Angular apps — `__zone_symbol__*` bindings injected by Zone.js are now excluded from the suspicious-bindings check.

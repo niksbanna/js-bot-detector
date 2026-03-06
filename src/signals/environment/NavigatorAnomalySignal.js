@@ -86,8 +86,7 @@ class NavigatorAnomalySignal extends Signal {
     // Check maxTouchPoints consistency
     checksPerformed++;
     const isMobileUA = /Android|iPhone|iPad|iPod|Mobile/i.test(ua);
-    const hasTouchPoints = navigator.maxTouchPoints > 0;
-    
+
     // Desktop claiming touch or mobile with no touch
     if (!isMobileUA && navigator.maxTouchPoints > 5) {
       anomalies.push('desktop-high-touch-points');
@@ -102,7 +101,7 @@ class NavigatorAnomalySignal extends Signal {
         anomalies.push('spoofed-user-agent');
         totalScore += 1;
       }
-    } catch (e) {
+    } catch (_e) {
       // Ignore errors
     }
 

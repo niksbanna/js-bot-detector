@@ -38,7 +38,6 @@ class DOMContentTimingSignal extends Signal {
     
     // Check resource timing
     let resourceCount = 0;
-    let totalResourceTime = 0;
     let externalScriptCount = 0;
 
     if (performance.getEntriesByType) {
@@ -46,8 +45,7 @@ class DOMContentTimingSignal extends Signal {
       resourceCount = resources.length;
 
       for (const resource of resources) {
-        totalResourceTime += resource.duration;
-        if (resource.initiatorType === 'script' && 
+        if (resource.initiatorType === 'script' &&
             resource.name.startsWith('http')) {
           externalScriptCount++;
         }
@@ -97,7 +95,7 @@ class DOMContentTimingSignal extends Signal {
         anomalies.push('instant-dom-operations');
         confidence = Math.max(confidence, 0.5);
       }
-    } catch (e) {
+    } catch (_e) {
       // If body doesn't exist yet, that's unusual at detection time
       if (!document.body) {
         anomalies.push('no-document-body');

@@ -82,7 +82,7 @@ class PluginsSignal extends Signal {
           confidence = Math.max(confidence, 0.7);
         }
       }
-    } catch (e) {
+    } catch (_e) {
       // Ignore errors during introspection
     }
 

@@ -133,9 +133,6 @@ class InteractionTimingSignal extends Signal {
       }
     }
 
-    // Check interaction sequence (bots often follow predictable patterns)
-    const typeSequence = interactions.map(i => i.type).join(',');
-    
     // Repeated identical sequences
     if (interactions.length >= 6) {
       const halfLength = Math.floor(interactions.length / 2);

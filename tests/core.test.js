@@ -148,6 +148,15 @@ describe('VerdictEngine', () => {
     expect(result.verdict).toBe(Verdict.BOT);
   });
 
+  it('should return score: 100 when instant bot signal overrides verdict', () => {
+    const engineWithInstant = new VerdictEngine({
+      instantBotSignals: ['puppeteer']
+    });
+    const result = engineWithInstant.getVerdict(7.61, ['puppeteer']);
+    expect(result.verdict).toBe(Verdict.BOT);
+    expect(result.score).toBe(100);
+  });
+
   it('should respect custom thresholds', () => {
     const customEngine = new VerdictEngine({
       humanThreshold: 10,

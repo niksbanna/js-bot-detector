@@ -47,7 +47,7 @@ class WebDriverSignal extends Signal {
           return this.createResult(true, { webdriver: true, source: 'prototype' }, 1.0);
         }
       }
-    } catch (e) {
+    } catch (_e) {
       // Some environments may throw on prototype access
     }
 

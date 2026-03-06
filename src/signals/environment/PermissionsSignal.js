@@ -45,7 +45,7 @@ class PermissionsSignal extends Signal {
         if (geoStatus.state === 'denied' && window.outerWidth === 0) {
           anomalies.push('geo-denied-headless');
         }
-      } catch (e) {
+      } catch (_e) {
         // Geolocation permission query may not be supported
       }
 

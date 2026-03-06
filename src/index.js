@@ -4,10 +4,10 @@
  */
 
 // Core classes
-import { BotDetector, Verdict } from './core/BotDetector.js';
+import { BotDetector } from './core/BotDetector.js';
 import { Signal } from './core/Signal.js';
 import { ScoringEngine } from './core/ScoringEngine.js';
-import { VerdictEngine } from './core/VerdictEngine.js';
+import { VerdictEngine, Verdict } from './core/VerdictEngine.js';
 
 // Environment signals
 import {
