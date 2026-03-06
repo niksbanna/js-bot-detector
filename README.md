@@ -50,15 +50,39 @@ const result = await detector.detect();
 
 ### Browser Script Tag
 
+**ESM (recommended):**
 ```html
 <script type="module">
-  import { detect } from './dist/bot-detector.esm.js';
-  
+  import { detect } from 'https://cdn.jsdelivr.net/npm/@niksbanna/bot-detector/dist/bot-detector.esm.js';
+
   const result = await detect();
   if (result.verdict === 'bot') {
     // Handle bot detection
   }
 </script>
+```
+
+**Classic script tag (IIFE):**
+```html
+<!-- Full build -->
+<script src="https://cdn.jsdelivr.net/npm/@niksbanna/bot-detector/dist/bot-detector.iife.js"></script>
+<!-- Minified -->
+<script src="https://cdn.jsdelivr.net/npm/@niksbanna/bot-detector/dist/bot-detector.iife.min.js"></script>
+<script>
+  BotDetectorLib.detect().then(result => {
+    if (result.verdict === 'bot') {
+      // Handle bot detection
+    }
+  });
+</script>
+```
+
+**Named subpath imports (bundlers / Node.js):**
+```javascript
+// Full IIFE source
+import '@niksbanna/bot-detector/iife';
+// Minified IIFE source
+import '@niksbanna/bot-detector/iife.min';
 ```
 
 ## Detection Result
@@ -239,6 +263,17 @@ npm test
 # Watch mode
 npm run dev
 ```
+
+## Changelog
+
+### v1.0.1
+- **Fix:** `PuppeteerSignal` no longer false-positives on Angular apps — `__zone_symbol__*` bindings injected by Zone.js are now excluded from the suspicious-bindings check.
+- **Fix:** `PuppeteerSignal` no longer false-positives on normal Chrome pages — `incomplete-chrome-object` now only triggers when `window.chrome.runtime` is absent, not when `runtime.id` is undefined (which is normal outside of extensions).
+- **Fix:** Corrected `package.json` `browser` entry to point to ESM instead of IIFE, fixing import resolution in modern bundlers (Vite, webpack, Rollup, esbuild).
+- **Added:** Named export subpaths `./iife` and `./iife.min` for explicit IIFE access.
+
+### v1.0.0
+- Initial release.
 
 ## License
 
