@@ -266,7 +266,7 @@ npm run dev
 
 ## Changelog
 
-### v1.0.1
+### v1.0.2
 - **Fix:** `PuppeteerSignal` no longer false-positives on Angular apps — `__zone_symbol__*` bindings injected by Zone.js are now excluded from the suspicious-bindings check.
 - **Fix:** `PuppeteerSignal` no longer false-positives on normal Chrome pages — `incomplete-chrome-object` now only triggers when `window.chrome.runtime` is absent, not when `runtime.id` is undefined (which is normal outside of extensions).
 - **Fix:** Corrected `package.json` `browser` entry to point to ESM instead of IIFE, fixing import resolution in modern bundlers (Vite, webpack, Rollup, esbuild).
