@@ -49,9 +49,13 @@ class VerdictEngine {
     // Check for instant bot signals first
     for (const signalId of triggeredSignals) {
       if (this.instantBotSignals.has(signalId)) {
+        // Ensure the score is consistent with the bot verdict.
+        // A "bot" verdict requires score >= suspiciousThreshold, so clamp upward
+        // when the raw score would otherwise fall below that boundary.
+        const consistentScore = Math.max(score, this.suspiciousThreshold);
         return {
           verdict: Verdict.BOT,
-          score,
+          score: consistentScore,
           confidence: 'high',
           reason: `Instant bot signal triggered: ${signalId}`,
           triggeredCount: triggeredSignals.length,

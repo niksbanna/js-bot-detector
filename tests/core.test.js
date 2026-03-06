@@ -148,6 +148,41 @@ describe('VerdictEngine', () => {
     expect(result.verdict).toBe(Verdict.BOT);
   });
 
+  it('should return a score consistent with bot verdict when instant bot signal fires with low raw score', () => {
+    // Reproduces: score 7.61, verdict "bot" (triggered signals: headless, page-load, puppeteer)
+    // The raw score (7.61) would normally map to "human", but the instant bot signal
+    // overrides the verdict to "bot". The returned score must be >= suspiciousThreshold
+    // so that score and verdict are internally consistent.
+    const engineWithInstant = new VerdictEngine({
+      instantBotSignals: ['puppeteer'],
+    });
+
+    const result = engineWithInstant.getVerdict(7.61, ['headless', 'page-load', 'puppeteer']);
+    expect(result.verdict).toBe(Verdict.BOT);
+    expect(result.score).toBeGreaterThanOrEqual(VerdictEngine.DEFAULT_THRESHOLDS.suspicious);
+  });
+
+  it('should preserve a high score when instant bot signal fires with score already above bot threshold', () => {
+    const engineWithInstant = new VerdictEngine({
+      instantBotSignals: ['puppeteer'],
+    });
+
+    const result = engineWithInstant.getVerdict(80, ['puppeteer']);
+    expect(result.verdict).toBe(Verdict.BOT);
+    expect(result.score).toBe(80);
+  });
+
+  it('should use custom suspiciousThreshold as the floor score when instant bot signal fires', () => {
+    const engineWithInstant = new VerdictEngine({
+      instantBotSignals: ['selenium'],
+      suspiciousThreshold: 40,
+    });
+
+    const result = engineWithInstant.getVerdict(5, ['selenium']);
+    expect(result.verdict).toBe(Verdict.BOT);
+    expect(result.score).toBe(40);
+  });
+
   it('should respect custom thresholds', () => {
     const customEngine = new VerdictEngine({
       humanThreshold: 10,
