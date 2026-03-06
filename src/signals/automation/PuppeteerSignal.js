@@ -91,18 +91,23 @@ class PuppeteerSignal extends Signal {
 
     // Check for binding injection pattern
     // Puppeteer's exposeFunction creates window bindings
+    // Exclude __zone_symbol__* (Angular/Zone.js) which are benign
     const suspiciousBindings = Object.keys(window).filter(key => {
-      return key.startsWith('__') && typeof window[key] === 'function';
+      return key.startsWith('__') &&
+        !key.startsWith('__zone_symbol__') &&
+        typeof window[key] === 'function';
     });
 
-    if (suspiciousBindings.length > 3) {
+    if (suspiciousBindings.length > 5) {
       indicators.push('suspicious-bindings');
       confidence = Math.max(confidence, 0.5);
     }
 
     // Check Chrome object anomalies (Puppeteer headless)
+    // Note: in a normal Chrome page, window.chrome.runtime exists but runtime.id is
+    // only set inside Chrome extensions. Only flag when runtime itself is absent.
     if (typeof window.chrome !== 'undefined') {
-      if (!window.chrome.runtime || !window.chrome.runtime.id) {
+      if (!window.chrome.runtime) {
         indicators.push('incomplete-chrome-object');
         confidence = Math.max(confidence, 0.4);
       }

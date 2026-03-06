@@ -1,19 +1,20 @@
 {
   "name": "@niksbanna/bot-detector",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Production-grade client-side bot detection system using signal-based scoring",
   "main": "dist/bot-detector.cjs.js",
   "module": "dist/bot-detector.esm.js",
-  "browser": "dist/bot-detector.iife.js",
+  "browser": "dist/bot-detector.esm.js",
   "types": "dist/types.d.ts",
   "exports": {
     ".": {
       "types": "./dist/types.d.ts",
-      "browser": "./dist/bot-detector.iife.js",
       "import": "./dist/bot-detector.esm.js",
       "require": "./dist/bot-detector.cjs.js",
       "default": "./dist/bot-detector.esm.js"
-    }
+    },
+    "./iife": "./dist/bot-detector.iife.js",
+    "./iife.min": "./dist/bot-detector.iife.min.js"
   },
   "files": [
     "dist",
