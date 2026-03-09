@@ -35,30 +35,40 @@ class PageLoadSignal extends Signal {
 
     const timing = performance.timing;
     
-    // Calculate key timings
+    // Calculate key timings.
+    // A 0 entry means the event hasn't fired; subtracting from a large epoch
+    // timestamp produces a huge negative number that was incorrectly flagged
+    // as 'negative-timing' (timestamp manipulation).
     const navigationStart = timing.navigationStart;
-    const domContentLoaded = timing.domContentLoadedEventEnd - navigationStart;
-    const domComplete = timing.domComplete - navigationStart;
-    const loadComplete = timing.loadEventEnd - navigationStart;
-    const dnsLookup = timing.domainLookupEnd - timing.domainLookupStart;
-    const tcpConnection = timing.connectEnd - timing.connectStart;
-    const serverResponse = timing.responseEnd - timing.requestStart;
-    const domProcessing = timing.domComplete - timing.domLoading;
+    const safeTimingDiff = (end, start) => {
+      if (end === 0 || start === 0) return null;
+      return end - start;
+    };
+
+    const domContentLoaded = safeTimingDiff(timing.domContentLoadedEventEnd, navigationStart);
+    const domComplete = safeTimingDiff(timing.domComplete, navigationStart);
+    const loadComplete = safeTimingDiff(timing.loadEventEnd, navigationStart);
+    const dnsLookup = safeTimingDiff(timing.domainLookupEnd, timing.domainLookupStart);
+    const tcpConnection = safeTimingDiff(timing.connectEnd, timing.connectStart);
+    const serverResponse = safeTimingDiff(timing.responseEnd, timing.requestStart);
+    const domProcessing = safeTimingDiff(timing.domComplete, timing.domLoading);
 
     // Check for impossibly fast load times
-    if (domContentLoaded > 0 && domContentLoaded < 10) {
+    if (domContentLoaded !== null && domContentLoaded > 0 && domContentLoaded < 10) {
       anomalies.push('instant-dom-content-loaded');
       confidence = Math.max(confidence, 0.7);
     }
 
     // Check for zero DNS lookup (could indicate local file or caching, but suspicious in combination)
-    if (dnsLookup === 0 && tcpConnection === 0 && serverResponse < 5) {
+    if (dnsLookup === 0 && tcpConnection === 0 && serverResponse !== null && serverResponse < 5) {
       anomalies.push('zero-network-timing');
       confidence = Math.max(confidence, 0.4);
     }
 
-    // Check for negative timings (timestamp manipulation)
-    if (domContentLoaded < 0 || domComplete < 0 || loadComplete < 0) {
+    // Check for negative timings (timestamp manipulation).
+    if ((domContentLoaded !== null && domContentLoaded < 0) ||
+        (domComplete !== null && domComplete < 0) ||
+        (loadComplete !== null && loadComplete < 0)) {
       anomalies.push('negative-timing');
       confidence = Math.max(confidence, 0.8);
     }
@@ -72,7 +82,7 @@ class PageLoadSignal extends Signal {
     }
 
     // Check for very long processing times (could indicate headless waiting)
-    if (domProcessing > 30000) { // 30 seconds
+    if (domProcessing !== null && domProcessing > 30000) { // 30 seconds
       anomalies.push('excessive-dom-processing');
       confidence = Math.max(confidence, 0.3);
     }
@@ -80,17 +90,25 @@ class PageLoadSignal extends Signal {
     // Check for script injection timing pattern
     // Bots often inject scripts immediately after load
     const scriptsLoadedTime = timing.domContentLoadedEventStart - timing.responseEnd;
-    if (scriptsLoadedTime > 0 && scriptsLoadedTime < 5) {
+    if (timing.responseEnd > 0 && timing.domContentLoadedEventStart > 0 &&
+        scriptsLoadedTime > 0 && scriptsLoadedTime < 5) {
       anomalies.push('instant-script-execution');
       confidence = Math.max(confidence, 0.4);
     }
 
-    // Check for performance.now() manipulation
-    const perfNow1 = performance.now();
-    const perfNow2 = performance.now();
-    
-    // If two consecutive calls return the same value (shouldn't happen)
-    if (perfNow1 === perfNow2 && perfNow1 > 0) {
+    // Check for performance.now() manipulation.
+    // performance.now() to 1-2ms for Spectre protection. Two consecutive calls
+    // can legitimately return the same value, so comparing only two is unreliable.
+    // Instead, use a busy-wait loop to advance time, then check if the clock moved.
+    const perfBefore = performance.now();
+    // Spin for ~1ms to force the clock to advance past quantization granularity
+    const spinEnd = perfBefore + 2;
+    // eslint-disable-next-line no-empty
+    while (performance.now() < spinEnd) {}
+    const perfAfter = performance.now();
+
+    if (perfAfter === perfBefore) {
+      // Clock truly didn't advance over 2ms — something is wrong
       anomalies.push('frozen-performance-now');
       confidence = Math.max(confidence, 0.6);
     }

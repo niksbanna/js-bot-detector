@@ -81,9 +81,10 @@ class DOMContentTimingSignal extends Signal {
 
     // Check DOM manipulation timing
     try {
+      const randomId = `__bdt_${Math.random().toString(36).slice(2)}`;
       const startMutation = performance.now();
       const testDiv = document.createElement('div');
-      testDiv.id = '__bot_detection_test__';
+      testDiv.id = randomId;
       document.body.appendChild(testDiv);
       const afterAppend = performance.now();
       document.body.removeChild(testDiv);

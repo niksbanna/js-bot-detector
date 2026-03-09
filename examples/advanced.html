@@ -422,9 +422,9 @@ detector.registerSignal(new CustomBotSignal());
 const result = await detector.detect();</code></pre>
   </div>
 
-  <script type="module">
-    import { BotDetector, createDetector, Signals } from '../dist/bot-detector.esm.js';
-    
+  <!-- Replace ESM module with IIFE build for file:// compatibility -->
+  <script src="../dist/bot-detector.iife.js"></script>
+  <script>
     // Track interaction events
     let mouseEvents = 0;
     let keyEvents = 0;
@@ -458,7 +458,7 @@ const result = await detector.detect();</code></pre>
           includeInteractionSignals: document.getElementById('includeInteraction').checked,
         };
         
-        const detector = createDetector(config);
+        const detector = BotDetectorLib.createDetector(config);
         const result = await detector.detect();
         displayResult(result);
       } catch (error) {

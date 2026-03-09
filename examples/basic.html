@@ -185,9 +185,12 @@ const detector = createDetector({
 const result = await detector.detect();</code></pre>
   </div>
 
-  <script type="module">
+  <!-- Replace ESM module with IIFE build for file:// compatibility -->
+  <!-- <script type="module">
     import { createDetector, detectInstant } from '../dist/bot-detector.esm.js';
-    
+  -->
+  <script src="../dist/bot-detector.iife.js"></script>
+  <script>
     // Make functions available globally
     window.runDetection = async function() {
       const btn = document.getElementById('detect-btn');
@@ -197,7 +200,7 @@ const result = await detector.detect();</code></pre>
       loading.style.display = 'inline';
       
       try {
-        const detector = createDetector();
+        const detector = BotDetectorLib.createDetector();
         const result = await detector.detect();
         displayResult(result);
       } catch (error) {
@@ -217,7 +220,7 @@ const result = await detector.detect();</code></pre>
       loading.style.display = 'inline';
       
       try {
-        const result = await detectInstant();
+        const result = await BotDetectorLib.detectInstant();
         displayResult(result);
       } catch (error) {
         console.error('Detection failed:', error);

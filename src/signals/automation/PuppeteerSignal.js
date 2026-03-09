@@ -83,35 +83,36 @@ class PuppeteerSignal extends Signal {
       confidence = Math.max(confidence, 0.3);
     }
 
-    // Check for navigator.webdriver (Puppeteer sets this)
-    if (navigator.webdriver === true) {
-      indicators.push('webdriver-flag');
-      confidence = Math.max(confidence, 0.9);
-    }
+    // navigator.webdriver is already exclusively checked by WebDriverSignal (environment).
+    // Duplicating it here causes triple-counting of the same property across signals.
 
     // Check for binding injection pattern
     // Puppeteer's exposeFunction creates window bindings
-    // Exclude __zone_symbol__* (Angular/Zone.js) which are benign
+    // (Next.js, webpack, React DevTools, Angular) push __* count past the
+    // old threshold of 5 on perfectly normal pages.
+    const FRAMEWORK_PREFIXES = [
+      '__zone_symbol__',   // Angular / Zone.js
+      '__next',            // Next.js
+      '__webpack',         // webpack
+      '__react',           // React DevTools
+      '__REACT',
+      '__vite',            // Vite
+      '__nuxt',            // Nuxt.js
+    ];
     const suspiciousBindings = Object.keys(window).filter(key => {
-      return key.startsWith('__') &&
-        !key.startsWith('__zone_symbol__') &&
-        typeof window[key] === 'function';
+      if (!key.startsWith('__')) return false;
+      if (typeof window[key] !== 'function') return false;
+      return !FRAMEWORK_PREFIXES.some(prefix => key.startsWith(prefix));
     });
 
-    if (suspiciousBindings.length > 5) {
+    if (suspiciousBindings.length > 10) {
       indicators.push('suspicious-bindings');
       confidence = Math.max(confidence, 0.5);
     }
 
-    // Check Chrome object anomalies (Puppeteer headless)
-    // Note: in a normal Chrome page, window.chrome.runtime exists but runtime.id is
-    // only set inside Chrome extensions. Only flag when runtime itself is absent.
-    if (typeof window.chrome !== 'undefined') {
-      if (!window.chrome.runtime) {
-        indicators.push('incomplete-chrome-object');
-        confidence = Math.max(confidence, 0.4);
-      }
-    }
+    // window.chrome.runtime is ONLY populated inside Chrome extensions.
+    // Its absence is completely normal for all real Chrome users.
+    // This check was causing every non-extension Chrome user to be flagged as Puppeteer.
 
     const triggered = indicators.length > 0;
 

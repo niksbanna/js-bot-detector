@@ -79,6 +79,7 @@ class ScoringEngine {
    */
   getBreakdown() {
     const breakdown = [];
+    const score = this.calculate();
     
     for (const [signalId, data] of this._results) {
       breakdown.push({
@@ -87,8 +88,8 @@ class ScoringEngine {
         confidence: data.confidence,
         weight: data.weight,
         contribution: data.contribution,
-        percentOfScore: this.calculate() > 0 
-          ? (data.contribution / this.calculate() * 100).toFixed(1)
+        percentOfScore: score > 0
+          ? (data.contribution / score * 100).toFixed(1)
           : '0.0',
       });
     }
