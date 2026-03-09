@@ -19,7 +19,7 @@ class KeyboardPatternSignal extends Signal {
     super(options);
     this._keystrokes = [];
     this._isTracking = false;
-    this._trackingDuration = options.trackingDuration || 5000;
+    this._trackingDuration = Math.min(options.trackingDuration || 2500, 2500);
     this._minKeystrokes = options.minKeystrokes || 10;
     this._boundKeydownHandler = null;
     this._boundKeyupHandler = null;

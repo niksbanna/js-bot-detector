@@ -107,16 +107,14 @@ class PhantomJSSignal extends Signal {
       }
     }
 
-    // Check for specific PhantomJS window properties
+    // Check for specific PhantomJS window properties.
     const phantomProps = [
       '__PHANTOM__',
       'PHANTOM',
-      'Buffer', // PhantomJS exposes Node.js Buffer
-      'process', // May expose Node.js process
     ];
 
     for (const prop of phantomProps) {
-      if (prop in window && prop !== 'Buffer' && prop !== 'process') {
+      if (prop in window) {
         indicators.push(`phantom-prop-${prop.toLowerCase()}`);
         confidence = Math.max(confidence, 0.9);
       }

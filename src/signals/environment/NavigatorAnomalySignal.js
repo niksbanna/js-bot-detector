@@ -35,9 +35,10 @@ class NavigatorAnomalySignal extends Signal {
       totalScore += 1;
     }
 
-    // Check for empty or suspicious platform
+    // Check for empty or suspicious platform.
     checksPerformed++;
-    if (!platform || platform === '' || platform === 'undefined') {
+    const isModernChrome = ua.includes('Chrome') && !ua.includes('Chromium');
+    if (!isModernChrome && (!platform || platform === '' || platform === 'undefined')) {
       anomalies.push('empty-platform');
       totalScore += 1;
     }

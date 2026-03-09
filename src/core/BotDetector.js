@@ -145,18 +145,19 @@ class BotDetector {
 
       // Run all signals with timeout
       const detectionPromises = signalsToRun.map(async signal => {
-        const result = await Promise.race([
-          signal.run(),
-          new Promise(resolve => 
-            setTimeout(() => resolve({ 
-              triggered: false, 
-              value: null, 
-              confidence: 0, 
-              error: 'timeout' 
-            }), this._detectionTimeout)
-          ),
-        ]);
-        
+        // preventing 15 leaked timers per detect() call in SPAs.
+        let timeoutId;
+        const timeoutPromise = new Promise(resolve => {
+          timeoutId = setTimeout(() => resolve({
+            triggered: false,
+            value: null,
+            confidence: 0,
+            error: 'timeout',
+          }), this._detectionTimeout);
+        });
+
+        const result = await Promise.race([signal.run(), timeoutPromise]);
+        clearTimeout(timeoutId);
         return { signal, result };
       });
 
@@ -257,13 +258,23 @@ class BotDetector {
   }
 
   /**
-   * Create a detector with default signals.
-   * @param {Object} [options={}] - Configuration options
-   * @returns {BotDetector}
+   * @deprecated Use `createDetector()` from '@niksbanna/bot-detector' instead.
+   * This method cannot load default signals from here due to module boundaries.
+   * 
+   * @example
+   * // Correct:
+   * import { createDetector } from '@niksbanna/bot-detector';
+   * const detector = createDetector();
+   * 
+   * @throws {Error} Always — to prevent silent empty-detector bugs.
    */
-  static withDefaults(options = {}) {
-    // This will be populated with default signals in the main export
-    return new BotDetector(options);
+  static withDefaults() {
+    throw new Error(
+      'BotDetector.withDefaults() is not supported. ' +
+      'Use createDetector() from \'@niksbanna/bot-detector\' instead:\n' +
+      '  import { createDetector } from \'@niksbanna/bot-detector\';\n' +
+      '  const detector = createDetector();'
+    );
   }
 }
 

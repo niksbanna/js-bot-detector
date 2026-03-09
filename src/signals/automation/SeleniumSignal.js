@@ -18,11 +18,8 @@ class SeleniumSignal extends Signal {
     const indicators = [];
     let confidence = 0;
 
-    // Check for navigator.webdriver (standard WebDriver flag)
-    if (navigator.webdriver === true) {
-      indicators.push('webdriver-flag');
-      confidence = Math.max(confidence, 1.0);
-    }
+    // navigator.webdriver is already exclusively checked by WebDriverSignal (environment).
+    // Duplicating it here causes triple-counting of the same property across signals.
 
     // Check for Selenium-specific globals
     const seleniumGlobals = [

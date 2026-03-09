@@ -25,14 +25,14 @@ class HeadlessSignal extends Signal {
       confidence = Math.max(confidence, 1.0);
     }
 
-    // Check for missing chrome.runtime in Chrome
+    // Check for missing window.chrome in Chrome (true headless indicator).
+    // NOTE: chrome.runtime is only populated inside Chrome extensions, so
+    // its absence is perfectly normal for real users without extensions.
+    // Only flag when the entire window.chrome object is absent.
     if (ua.includes('Chrome') && !ua.includes('Chromium')) {
       if (typeof window.chrome === 'undefined') {
         indicators.push('missing-chrome-object');
         confidence = Math.max(confidence, 0.6);
-      } else if (!window.chrome.runtime) {
-        indicators.push('missing-chrome-runtime');
-        confidence = Math.max(confidence, 0.4);
       }
     }
 

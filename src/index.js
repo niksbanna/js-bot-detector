@@ -158,16 +158,24 @@ function createDetector(options = {}) {
     ...detectorOptions
   } = options;
 
-  const signals = includeInteractionSignals 
-    ? [...defaultInstantSignals, ...defaultInteractionSignals.map(s => {
-        // Create fresh instances for interaction signals
-        const SignalClass = s.constructor;
-        return new SignalClass(s.options);
-      })]
-    : defaultInstantSignals.map(s => {
-        const SignalClass = s.constructor;
-        return new SignalClass(s.options);
-      });
+  // singletons. If two detectors share the same signal instances, calling
+  // detector1.reset() would corrupt detector2's cached results.
+  const signalClasses = includeInteractionSignals
+    ? [
+        WebDriverSignal, HeadlessSignal, NavigatorAnomalySignal, PermissionsSignal,
+        PluginsSignal, WebGLSignal, CanvasSignal, AudioContextSignal, ScreenSignal,
+        PageLoadSignal, DOMContentTimingSignal,
+        PuppeteerSignal, PlaywrightSignal, SeleniumSignal, PhantomJSSignal,
+        MouseMovementSignal, KeyboardPatternSignal, InteractionTimingSignal, ScrollBehaviorSignal,
+      ]
+    : [
+        WebDriverSignal, HeadlessSignal, NavigatorAnomalySignal, PermissionsSignal,
+        PluginsSignal, WebGLSignal, CanvasSignal, AudioContextSignal, ScreenSignal,
+        PageLoadSignal, DOMContentTimingSignal,
+        PuppeteerSignal, PlaywrightSignal, SeleniumSignal, PhantomJSSignal,
+      ];
+
+  const signals = signalClasses.map(Cls => new Cls());
 
   return new BotDetector({
     signals,

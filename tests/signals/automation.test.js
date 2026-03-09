@@ -18,10 +18,11 @@ describe('PuppeteerSignal', () => {
     expect(result).toHaveProperty('value');
   });
 
+  // window.chrome.runtime is only populated inside Chrome extensions.
+  // Its absence is completely normal for all real Chrome users — the check
+  // was causing every non-extension Chrome browser to be flagged as Puppeteer.
   describe('incomplete-chrome-object — false-positive regression', () => {
-    it('should NOT flag when window.chrome.runtime exists (normal Chrome page)', async () => {
-      // Simulate a real Chrome browser page: window.chrome.runtime is present
-      // but runtime.id is undefined (only set inside extensions).
+    it('should NOT flag when window.chrome.runtime exists (normal Chrome with extension)', async () => {
       const originalChrome = window.chrome;
       try {
         Object.defineProperty(window, 'chrome', {
@@ -47,11 +48,13 @@ describe('PuppeteerSignal', () => {
       }
     });
 
-    it('should flag when window.chrome.runtime is completely absent', async () => {
+    it('should NOT flag when window.chrome.runtime is absent (normal Chrome without extensions)', async () => {
+      // This was the false-positive case: chrome object exists but runtime is absent.
+      // Previously flagged as bot; now correctly ignored.
       const originalChrome = window.chrome;
       try {
         Object.defineProperty(window, 'chrome', {
-          value: {},  // chrome object exists but runtime is absent
+          value: {},  // chrome exists but runtime is absent — normal real user
           configurable: true,
           writable: true,
         });
@@ -59,7 +62,8 @@ describe('PuppeteerSignal', () => {
         const signal = new PuppeteerSignal();
         const result = await signal.run();
 
-        expect(result.value?.indicators ?? []).toContain('incomplete-chrome-object');
+        // Must NOT flag — this is a real Chrome user without any extension
+        expect(result.value?.indicators ?? []).not.toContain('incomplete-chrome-object');
       } finally {
         if (originalChrome === undefined) {
           delete window.chrome;
@@ -101,7 +105,8 @@ describe('PuppeteerSignal', () => {
       }
     });
 
-    it('should flag when more than 5 non-zone suspicious __ bindings exist', async () => {
+    it('should flag when more than 10 non-zone/framework suspicious __ bindings exist', async () => {
+      // from Next.js, webpack, React DevTools, Vite etc.
       const fakeBindings = [
         '__binding_0__',
         '__binding_1__',
@@ -109,6 +114,12 @@ describe('PuppeteerSignal', () => {
         '__binding_3__',
         '__binding_4__',
         '__binding_5__',
+        '__binding_6__',
+        '__binding_7__',
+        '__binding_8__',
+        '__binding_9__',
+        '__binding_10__',
+        '__binding_11__',
       ];
       for (const key of fakeBindings) {
         window[key] = function () {};

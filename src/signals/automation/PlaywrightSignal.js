@@ -52,12 +52,6 @@ class PlaywrightSignal extends Signal {
       confidence = Math.max(confidence, ua.includes('Playwright') ? 1.0 : 0.7);
     }
 
-    // Check for navigator.webdriver (Playwright sets this in headless)
-    if (navigator.webdriver === true) {
-      indicators.push('webdriver-flag');
-      confidence = Math.max(confidence, 0.8);
-    }
-
     // Check for Playwright's evaluate scope pattern
     try {
       // Playwright injects __pwBinding__ functions

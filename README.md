@@ -266,6 +266,25 @@ npm run dev
 
 ## Changelog
 
+### v1.0.3
+- **Stability Fixes:** 
+  - Fixed a major memory leak where `setTimeout` timers were never cleared in `BotDetector.detect()`.
+  - Fixed `getBreakdown()` calling `calculate()` in an $O(n^2)$ loop; now computes instantly ($O(n)$).
+  - Fixed an issue where multiple `BotDetector` instances on the same page shared mutable singleton state. `createDetector()` now guarantees fresh detection instances.
+  - `BotDetector.withDefaults()` now throws a descriptive error pointing to `createDetector()` instead of silently breaking and returning a useless detector.
+  - Capped tracking duration of all behavior signals (`MouseMovementSignal`, `KeyboardPatternSignal`, `ScrollBehaviorSignal`) at `2500ms` so they safely fit within the default `5000ms` global timeout without non-deterministic racing.
+- **False-Positive Fixes:**
+  - `PuppeteerSignal` & `HeadlessSignal`: Fixed a critical bug where `window.chrome.runtime` being undefined caused a false positive for all standard, non-extension Chrome users.
+  - `NavigatorAnomalySignal`: Chrome 110+ user-agent reduction returns `''` for `navigator.platform`; this is now correctly handled as normal behavior on Chrome.
+  - `PuppeteerSignal`: Increased `suspiciousBindings` threshold and excluded React, Webpack, Vite, Nuxt, and Next.js global prefixes to avoid false positives on heavy framework sites.
+  - `PageLoadSignal`: Fixed a "negative-timing" false positive caused by evaluating performance metrics before events had fired (zero epoch bug).
+  - `PageLoadSignal`: Fixed a "frozen-performance" false positive caused by the browser's deliberate Spectre timer quantization (1-2ms).
+- **Correctness Fixes:**
+  - Removed redundant `navigator.webdriver` checks from `PuppeteerSignal`, `PlaywrightSignal`, and `SeleniumSignal` to prevent triple-counting the same underlying signal; this check is now exclusively handled by `WebDriverSignal`.
+  - `PhantomJSSignal`: Cleaned up dead code evaluating `Buffer` and `process`.
+  - `DOMContentTimingSignal`: Randomized the ID of the injected test div to prevent detection scripts from keying off the hardcoded `__bot_detection_test__` id.
+- **Examples:** Fixed CORS issues with `file://` protocol in demo HTML files by utilizing the IIFE build instead of ESM imports.
+
 ### v1.0.2
 - **Fix:** `PuppeteerSignal` no longer false-positives on Angular apps — `__zone_symbol__*` bindings injected by Zone.js are now excluded from the suspicious-bindings check.
 - **Fix:** `PuppeteerSignal` no longer false-positives on normal Chrome pages — `incomplete-chrome-object` now only triggers when `window.chrome.runtime` is absent, not when `runtime.id` is undefined (which is normal outside of extensions).
