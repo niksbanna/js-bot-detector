@@ -1,6 +1,6 @@
 {
   "name": "@niksbanna/bot-detector",
-  "version": "1.0.3",
+  "version": "1.0.5",
   "description": "Production-grade client-side bot detection system using signal-based scoring",
   "main": "dist/bot-detector.cjs.js",
   "module": "dist/bot-detector.esm.js",
@@ -18,7 +18,6 @@
   },
   "files": [
     "dist",
-    "src",
     "README.md"
   ],
   "scripts": {
