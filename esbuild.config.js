@@ -6,7 +6,7 @@ const isWatch = process.argv.includes('--watch');
 const commonConfig = {
   entryPoints: ['src/index.js'],
   bundle: true,
-  sourcemap: true,
+  sourcemap: false,
   target: ['es2020', 'chrome80', 'firefox75', 'safari13'],
 };
 

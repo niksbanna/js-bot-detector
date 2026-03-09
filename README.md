@@ -266,6 +266,9 @@ npm run dev
 
 ## Changelog
 
+### v1.0.5
+- **Optimization:** Drastically reduced npm package "unpacked size" (from ~1MB down to ~300KB) by disabling source map generation and excluding the raw `src/` directory from the published NPM tarball.
+
 ### v1.0.3
 - **Stability Fixes:** 
   - Fixed a major memory leak where `setTimeout` timers were never cleared in `BotDetector.detect()`.
