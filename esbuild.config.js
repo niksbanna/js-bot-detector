@@ -42,22 +42,30 @@ const builds = [
 ];
 
 async function build() {
+  const fs = require('fs');
+
   try {
     if (isWatch) {
       // Create contexts for watching
       const contexts = await Promise.all(
         builds.map(config => esbuild.context(config))
       );
-      
+
       await Promise.all(contexts.map(ctx => ctx.watch()));
       console.log('Watching for changes...');
     } else {
       // One-time build
       await Promise.all(builds.map(config => esbuild.build(config)));
+
+      // Copy TypeScript declarations into dist/
+      fs.copyFileSync(
+        path.join(__dirname, 'src', 'types.d.ts'),
+        path.join(__dirname, 'dist', 'types.d.ts'),
+      );
+
       console.log('Build complete!');
-      
+
       // Log bundle sizes
-      const fs = require('fs');
       console.log('\nBundle sizes:');
       builds.forEach(config => {
         const stats = fs.statSync(config.outfile);

@@ -266,6 +266,10 @@ npm run dev
 
 ## Changelog
 
+### v1.1.0
+- **TypeScript support:** Added first-party TypeScript declarations (`dist/types.d.ts`). All public classes, interfaces, and functions are now fully typed — `DetectionResult`, `SignalResult`, `DetectorOptions`, `DetectOptions`, and every built-in signal class.
+- **Fix — `WebDriverSignal` false positive:** The previous check flagged any own property descriptor that had a getter, regardless of what value it returned. This caused false positives in environments where a native or third-party getter returns `false`. The signal now invokes the getter and only triggers when it returns `true`; it still catches stealth-plugin overrides (non-native getters that hide the flag).
+
 ### v1.0.5
 - **Optimization:** Drastically reduced npm package "unpacked size" (from ~1MB down to ~300KB) by disabling source map generation and excluding the raw `src/` directory from the published NPM tarball.
 
